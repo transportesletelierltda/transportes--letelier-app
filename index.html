@@ -57,21 +57,24 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
 </style>
 </head>
 <body>
-<div id="login" class="login-wrap">
+<div id="loginView" class="login-wrap">
   <div class="login-card">
     <div class="logo">TL</div>
     <h1 style="margin:0 0 6px">Transportes Letelier</h1>
     <p class="muted">Control de viajes, gastos y documentación.</p>
-    <label>Perfil</label>
-    <select id="role">
-      <option value="admin">Administrador</option>
-      <option value="driver">Conductor</option>
-    </select>
-    <label>Usuario</label>
-    <input id="user" placeholder="Ej: admin o conductor">
-    <label>Contraseña</label>
-    <input id="pass" type="password" placeholder="••••••••">
-    <button class="btn full" style="margin-top:16px" onclick="login()">Ingresar</button>
+    <form id="loginForm">
+      <label for="role">Perfil</label>
+      <select id="role">
+        <option value="admin">Administrador</option>
+        <option value="driver">Conductor</option>
+      </select>
+      <label for="username">Usuario</label>
+      <input id="username" name="username" autocomplete="username" placeholder="Ej: admin o conductor" required>
+      <label for="password">Contraseña</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required>
+      <button class="btn full" type="submit" style="margin-top:16px">Ingresar</button>
+      <p id="loginError" class="small" role="alert" aria-live="polite" style="color:var(--danger)"></p>
+    </form>
     <p class="small muted" style="margin-top:14px">Demo: admin / 1234 &nbsp; | &nbsp; conductor / 1234</p>
   </div>
 </div>
@@ -106,6 +109,10 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
 <script>
 const STORE='tl_data_v1';
 const SESSION='tl_session_v1';
+const ACCOUNTS={
+  admin:{username:'admin',password:'1234',name:'Administrador'},
+  driver:{username:'conductor',password:'1234',name:'Juan Pérez'}
+};
 
 function seed(){
   if(localStorage.getItem(STORE)) return;
@@ -127,34 +134,56 @@ function saveData(d){localStorage.setItem(STORE,JSON.stringify(d)); renderAll()}
 function money(n){return new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(n||0)}
 function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
 
-function login(){
-  const role=document.getElementById('role').value;
-  const u=document.getElementById('user').value.trim().toLowerCase();
-  const p=document.getElementById('pass').value;
-  const ok=(role==='admin'&&u==='admin'&&p==='1234')||(role==='driver'&&u==='conductor'&&p==='1234');
-  if(!ok){toast('Usuario o contraseña incorrectos');return}
-  const s={role,name:role==='admin'?'Administrador':'Juan Pérez'};
-  localStorage.setItem(SESSION,JSON.stringify(s));
+function getSession(){
+  try{
+    const session=JSON.parse(localStorage.getItem(SESSION)||'null');
+    if(!session||!ACCOUNTS[session.role]) return null;
+    return {role:session.role,name:ACCOUNTS[session.role].name};
+  }catch{
+    localStorage.removeItem(SESSION);
+    return null;
+  }
+}
+function handleLogin(event){
+  event.preventDefault();
+  const selectedRole=document.getElementById('role').value;
+  const username=document.getElementById('username').value.trim().toLowerCase();
+  const password=document.getElementById('password').value;
+  const account=ACCOUNTS[selectedRole];
+  if(!account||username!==account.username||password!==account.password){
+    document.getElementById('loginError').textContent='Usuario, contraseña o perfil incorrectos.';
+    document.getElementById('password').value='';
+    document.getElementById('password').focus();
+    return;
+  }
+  document.getElementById('loginError').textContent='';
+  localStorage.setItem(SESSION,JSON.stringify({role:selectedRole,name:account.name}));
   start();
 }
 function logout(){localStorage.removeItem(SESSION);location.reload()}
 function start(){
-  const s=JSON.parse(localStorage.getItem(SESSION)||'null');
-  if(!s)return;
-  document.getElementById('login').classList.add('hidden');
+  const s=getSession();
+  if(!s){
+    document.getElementById('loginView').classList.remove('hidden');
+    document.getElementById('app').classList.add('hidden');
+    document.getElementById('username').focus();
+    return;
+  }
+  document.getElementById('loginView').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('sessionLabel').textContent=s.role==='admin'?'Sesión administrador':'Conductor: '+s.name;
   document.getElementById('nav-new').style.display=s.role==='admin'?'block':'none';
   renderAll(); showView('home');
 }
 function showView(v){
+  if(v==='new'&&role()!=='admin') v='home';
   ['home','trips','new','more'].forEach(x=>{
     document.getElementById('view-'+x).classList.toggle('hidden',x!==v);
     document.getElementById('nav-'+x)?.classList.toggle('active',x===v);
   })
 }
 function renderAll(){renderHome();renderTrips();renderNew();renderMore()}
-function role(){return (JSON.parse(localStorage.getItem(SESSION)||'{}').role)||'admin'}
+function role(){return getSession()?.role||null}
 function visibleTrips(){
   const d=getData();
   return role()==='driver'?d.trips.filter(t=>t.driver==='Juan Pérez'):d.trips;
@@ -296,6 +325,7 @@ function renderMore(){
     <div class="card"><h2>Datos</h2><button class="btn warn" onclick="resetDemo()">Restablecer datos demo</button></div>`;
 }
 function resetDemo(){localStorage.removeItem(STORE);seed();renderAll();toast('Datos restablecidos')}
+document.getElementById('loginForm').addEventListener('submit',handleLogin);
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
 start();
 </script>
