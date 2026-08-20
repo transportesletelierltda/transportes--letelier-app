@@ -1,0 +1,10 @@
+{
+  "name": "Transportes Letelier",
+  "short_name": "Letelier",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#111827",
+  "description": "Gestión de viajes, gastos y documentos de Transportes Letelier",
+  "icons": []
+}

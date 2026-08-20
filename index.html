@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Transportes Letelier</title>
+<style>
+:root{
+  --bg:#f3f4f6; --card:#fff; --text:#111827; --muted:#6b7280; --accent:#111827;
+  --line:#e5e7eb; --ok:#166534; --warn:#92400e; --danger:#991b1b;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.app{max-width:720px;margin:0 auto;min-height:100vh;background:var(--bg)}
+header{position:sticky;top:0;z-index:5;background:rgba(17,24,39,.96);color:#fff;padding:16px 18px}
+header .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{font-weight:800;letter-spacing:.2px}
+.sub{font-size:12px;opacity:.8}
+main{padding:16px 16px 96px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 6px 20px rgba(17,24,39,.05)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}
+.stat b{display:block;font-size:24px;margin-top:4px}
+label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}
+input,select,textarea{width:100%;padding:12px 13px;border:1px solid #d1d5db;border-radius:12px;background:#fff;font-size:16px}
+textarea{min-height:80px}
+button{border:0;border-radius:12px;padding:12px 14px;font-size:15px;font-weight:700}
+.btn{background:var(--accent);color:#fff}
+.btn.secondary{background:#e5e7eb;color:#111827}
+.btn.good{background:#166534;color:#fff}
+.btn.warn{background:#92400e;color:#fff}
+.btn.full{width:100%}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.hidden{display:none!important}
+.pill{display:inline-block;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800;background:#e5e7eb}
+.pill.ok{background:#dcfce7;color:#166534}
+.pill.warn{background:#fef3c7;color:#92400e}
+.pill.dark{background:#e5e7eb;color:#111827}
+.trip{padding:14px 0;border-bottom:1px solid var(--line)}
+.trip:last-child{border-bottom:0}
+.trip h3{margin:0 0 6px;font-size:17px}
+.muted{color:var(--muted);font-size:13px}
+nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(720px,100%);display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+nav button{background:transparent;color:#374151;padding:10px 4px;font-size:12px}
+nav button.active{background:#111827;color:#fff}
+.login-wrap{min-height:100vh;display:flex;align-items:center;padding:24px}
+.login-card{width:100%;background:#fff;border-radius:24px;padding:24px;box-shadow:0 20px 60px rgba(17,24,39,.12)}
+.logo{width:62px;height:62px;border-radius:18px;background:#111827;color:#fff;display:grid;place-items:center;font-weight:900;font-size:22px;margin-bottom:14px}
+hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:8px;font-size:14px;margin:7px 0}
+.filelist{font-size:13px;color:#374151}
+.small{font-size:12px}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:12px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:20}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="login" class="login-wrap">
+  <div class="login-card">
+    <div class="logo">TL</div>
+    <h1 style="margin:0 0 6px">Transportes Letelier</h1>
+    <p class="muted">Control de viajes, gastos y documentación.</p>
+    <label>Perfil</label>
+    <select id="role">
+      <option value="admin">Administrador</option>
+      <option value="driver">Conductor</option>
+    </select>
+    <label>Usuario</label>
+    <input id="user" placeholder="Ej: admin o conductor">
+    <label>Contraseña</label>
+    <input id="pass" type="password" placeholder="••••••••">
+    <button class="btn full" style="margin-top:16px" onclick="login()">Ingresar</button>
+    <p class="small muted" style="margin-top:14px">Demo: admin / 1234 &nbsp; | &nbsp; conductor / 1234</p>
+  </div>
+</div>
+
+<div id="app" class="app hidden">
+  <header>
+    <div class="row">
+      <div>
+        <div class="brand">Transportes Letelier</div>
+        <div class="sub" id="sessionLabel"></div>
+      </div>
+      <button class="secondary" onclick="logout()">Salir</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="view-home"></section>
+    <section id="view-trips" class="hidden"></section>
+    <section id="view-new" class="hidden"></section>
+    <section id="view-more" class="hidden"></section>
+  </main>
+
+  <nav>
+    <button id="nav-home" class="active" onclick="showView('home')">Inicio</button>
+    <button id="nav-trips" onclick="showView('trips')">Viajes</button>
+    <button id="nav-new" onclick="showView('new')">Nuevo</button>
+    <button id="nav-more" onclick="showView('more')">Más</button>
+  </nav>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+const STORE='tl_data_v1';
+const SESSION='tl_session_v1';
+
+function seed(){
+  if(localStorage.getItem(STORE)) return;
+  const data={
+    trips:[
+      {id:'TL-000128',date:'2026-08-20',client:'Cliente ABC',driver:'Juan Pérez',truck:'Volvo FH',plate:'XX-XX-00',trailer:'Rampla 01',origin:'Santiago',destination:'Concepción',cargo:'Carga general',value:1200000,status:'En ruta',notes:'Entrega prioritaria',expenses:[{type:'Combustible',amount:185000}],docs:['Guía de despacho']},
+      {id:'TL-000129',date:'2026-08-20',client:'Cliente Demo',driver:'Juan Pérez',truck:'International 9200',plate:'YY-YY-00',trailer:'Rampla 02',origin:'Los Ángeles',destination:'Santiago',cargo:'Pallets',value:900000,status:'Asignado',notes:'',expenses:[],docs:[]}
+    ],
+    clients:['Cliente ABC','Cliente Demo'],
+    drivers:['Juan Pérez','Conductor Demo'],
+    trucks:['Volvo FH','International 9200']
+  };
+  localStorage.setItem(STORE,JSON.stringify(data));
+}
+seed();
+
+function getData(){return JSON.parse(localStorage.getItem(STORE))}
+function saveData(d){localStorage.setItem(STORE,JSON.stringify(d)); renderAll()}
+function money(n){return new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(n||0)}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+
+function login(){
+  const role=document.getElementById('role').value;
+  const u=document.getElementById('user').value.trim().toLowerCase();
+  const p=document.getElementById('pass').value;
+  const ok=(role==='admin'&&u==='admin'&&p==='1234')||(role==='driver'&&u==='conductor'&&p==='1234');
+  if(!ok){toast('Usuario o contraseña incorrectos');return}
+  const s={role,name:role==='admin'?'Administrador':'Juan Pérez'};
+  localStorage.setItem(SESSION,JSON.stringify(s));
+  start();
+}
+function logout(){localStorage.removeItem(SESSION);location.reload()}
+function start(){
+  const s=JSON.parse(localStorage.getItem(SESSION)||'null');
+  if(!s)return;
+  document.getElementById('login').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('sessionLabel').textContent=s.role==='admin'?'Sesión administrador':'Conductor: '+s.name;
+  document.getElementById('nav-new').style.display=s.role==='admin'?'block':'none';
+  renderAll(); showView('home');
+}
+function showView(v){
+  ['home','trips','new','more'].forEach(x=>{
+    document.getElementById('view-'+x).classList.toggle('hidden',x!==v);
+    document.getElementById('nav-'+x)?.classList.toggle('active',x===v);
+  })
+}
+function renderAll(){renderHome();renderTrips();renderNew();renderMore()}
+function role(){return (JSON.parse(localStorage.getItem(SESSION)||'{}').role)||'admin'}
+function visibleTrips(){
+  const d=getData();
+  return role()==='driver'?d.trips.filter(t=>t.driver==='Juan Pérez'):d.trips;
+}
+function renderHome(){
+  const trips=visibleTrips();
+  if(role()==='driver'){
+    document.getElementById('view-home').innerHTML=`
+      <div class="card"><h2 style="margin-top:0">Mis viajes</h2>
+      <p class="muted">Aquí puedes revisar tus servicios asignados y actualizar su estado.</p></div>
+      ${trips.map(tripCard).join('')||'<div class="card">No tienes viajes asignados.</div>'}`;
+  }else{
+    const today=trips.filter(t=>t.date==='2026-08-20').length;
+    const route=trips.filter(t=>t.status==='En ruta').length;
+    const pending=trips.filter(t=>!['Finalizado','Entregado'].includes(t.status)).length;
+    const billed=trips.reduce((a,t)=>a+(t.value||0),0);
+    document.getElementById('view-home').innerHTML=`
+      <div class="grid">
+        <div class="stat"><span class="muted">Viajes del día</span><b>${today}</b></div>
+        <div class="stat"><span class="muted">En ruta</span><b>${route}</b></div>
+        <div class="stat"><span class="muted">Pendientes</span><b>${pending}</b></div>
+        <div class="stat"><span class="muted">Facturación viajes</span><b style="font-size:18px">${money(billed)}</b></div>
+      </div>
+      <div class="card"><div class="actions">
+      <button class="btn" onclick="showView('new')">+ Nuevo viaje</button>
+      <button class="btn secondary" onclick="showView('trips')">Ver viajes</button>
+      </div></div>
+      <div class="card"><h2 style="margin-top:0">Últimos viajes</h2>${trips.map(tripCard).join('')}</div>`;
+  }
+}
+function tripCard(t){
+  return `<div class="trip">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:start">
+      <div><h3>${t.id}</h3><div>${t.origin} → ${t.destination}</div><div class="muted">${t.client} · ${t.driver}</div></div>
+      <span class="pill ${t.status==='En ruta'?'ok':t.status==='Asignado'?'warn':'dark'}">${t.status}</span>
+    </div>
+    <div class="actions" style="margin-top:10px">
+      <button class="btn secondary" onclick="detail('${t.id}')">Ver detalle</button>
+    </div>
+  </div>`
+}
+function renderTrips(){
+  const trips=visibleTrips();
+  document.getElementById('view-trips').innerHTML=`<div class="card"><h2 style="margin-top:0">Viajes</h2>${trips.map(tripCard).join('')||'Sin viajes'}</div>`;
+}
+function renderNew(){
+  if(role()!=='admin'){document.getElementById('view-new').innerHTML='';return}
+  const d=getData();
+  document.getElementById('view-new').innerHTML=`
+    <div class="card">
+      <h2 style="margin-top:0">Nuevo viaje</h2>
+      <label>Fecha</label><input id="n-date" type="date" value="2026-08-20">
+      <label>Cliente</label><input id="n-client" list="clients"><datalist id="clients">${d.clients.map(x=>`<option>${x}</option>`).join('')}</datalist>
+      <label>Conductor</label><select id="n-driver">${d.drivers.map(x=>`<option>${x}</option>`).join('')}</select>
+      <label>Camión</label><select id="n-truck">${d.trucks.map(x=>`<option>${x}</option>`).join('')}</select>
+      <label>Patente</label><input id="n-plate" placeholder="XXXX-00">
+      <label>Rampla</label><input id="n-trailer" placeholder="Rampla 01">
+      <label>Origen</label><input id="n-origin" placeholder="Santiago">
+      <label>Destino</label><input id="n-dest" placeholder="Concepción">
+      <label>Tipo de carga</label><input id="n-cargo" placeholder="Carga general">
+      <label>Valor del viaje</label><input id="n-value" type="number" placeholder="1200000">
+      <label>Observaciones</label><textarea id="n-notes"></textarea>
+      <button class="btn full" style="margin-top:14px" onclick="createTrip()">Crear viaje</button>
+    </div>`;
+}
+function createTrip(){
+  const d=getData();
+  const next=String(Math.max(...d.trips.map(t=>parseInt(t.id.split('-')[1])),129)+1).padStart(6,'0');
+  const trip={
+    id:'TL-'+next,date:document.getElementById('n-date').value,
+    client:document.getElementById('n-client').value||'Sin cliente',
+    driver:document.getElementById('n-driver').value,truck:document.getElementById('n-truck').value,
+    plate:document.getElementById('n-plate').value,trailer:document.getElementById('n-trailer').value,
+    origin:document.getElementById('n-origin').value||'Origen',destination:document.getElementById('n-dest').value||'Destino',
+    cargo:document.getElementById('n-cargo').value,value:Number(document.getElementById('n-value').value||0),
+    status:'Asignado',notes:document.getElementById('n-notes').value,expenses:[],docs:[]
+  };
+  d.trips.unshift(trip);saveData(d);toast('Viaje creado');showView('trips');
+}
+function detail(id){
+  const d=getData(); const t=d.trips.find(x=>x.id===id); if(!t)return;
+  const statuses=['Asignado','En camino a carga','Cargando','En ruta','En destino','Descargando','Entregado','Finalizado'];
+  document.getElementById('view-trips').innerHTML=`
+  <div class="card">
+    <button class="btn secondary" onclick="renderTrips()">← Volver</button>
+    <h2>${t.id}</h2><span class="pill">${t.status}</span>
+    <hr>
+    <div class="kv"><b>Ruta</b><span>${t.origin} → ${t.destination}</span></div>
+    <div class="kv"><b>Cliente</b><span>${t.client}</span></div>
+    <div class="kv"><b>Conductor</b><span>${t.driver}</span></div>
+    <div class="kv"><b>Camión</b><span>${t.truck} ${t.plate||''}</span></div>
+    <div class="kv"><b>Rampla</b><span>${t.trailer||'-'}</span></div>
+    <div class="kv"><b>Carga</b><span>${t.cargo||'-'}</span></div>
+    <div class="kv"><b>Valor</b><span>${money(t.value)}</span></div>
+    <hr>
+    <label>Estado del viaje</label>
+    <select id="st-${t.id}">${statuses.map(s=>`<option ${s===t.status?'selected':''}>${s}</option>`).join('')}</select>
+    <button class="btn full" style="margin-top:10px" onclick="updateStatus('${t.id}')">Actualizar estado</button>
+    <hr>
+    <h3>Registrar gasto</h3>
+    <label>Tipo</label><select id="gx-${t.id}"><option>Combustible</option><option>Peaje</option><option>Estacionamiento</option><option>Alimentación</option><option>Reparación</option><option>Otro</option></select>
+    <label>Monto</label><input id="ga-${t.id}" type="number">
+    <button class="btn secondary full" style="margin-top:10px" onclick="addExpense('${t.id}')">Agregar gasto</button>
+    <div class="filelist" style="margin-top:10px">${t.expenses.map(e=>`${e.type}: ${money(e.amount)}`).join('<br>')||'Sin gastos registrados'}</div>
+    <hr>
+    <h3>Documentos</h3>
+    <label>Tipo</label><select id="dt-${t.id}"><option>Guía de despacho</option><option>Factura</option><option>Comprobante de entrega</option><option>Ticket combustible</option><option>Peaje</option><option>Pesaje</option><option>Otro</option></select>
+    <input id="df-${t.id}" type="file" accept="image/*,.pdf" capture="environment">
+    <button class="btn secondary full" style="margin-top:10px" onclick="addDoc('${t.id}')">Guardar documento</button>
+    <div class="filelist" style="margin-top:10px">${t.docs.join('<br>')||'Sin documentos registrados'}</div>
+  </div>`;
+}
+function updateStatus(id){
+  const d=getData();const t=d.trips.find(x=>x.id===id);t.status=document.getElementById('st-'+id).value;saveData(d);toast('Estado actualizado');detail(id)
+}
+function addExpense(id){
+  const d=getData();const t=d.trips.find(x=>x.id===id);
+  const amount=Number(document.getElementById('ga-'+id).value||0); if(!amount){toast('Ingresa un monto');return}
+  t.expenses.push({type:document.getElementById('gx-'+id).value,amount});saveData(d);toast('Gasto agregado');detail(id)
+}
+function addDoc(id){
+  const d=getData();const t=d.trips.find(x=>x.id===id);
+  const type=document.getElementById('dt-'+id).value; const f=document.getElementById('df-'+id).files[0];
+  t.docs.push(type+(f?' · '+f.name:'')); saveData(d);toast('Documento registrado');detail(id)
+}
+function renderMore(){
+  const d=getData(); const trips=visibleTrips();
+  const expense=trips.flatMap(t=>t.expenses).reduce((a,e)=>a+(e.amount||0),0);
+  const revenue=trips.reduce((a,t)=>a+(t.value||0),0);
+  document.getElementById('view-more').innerHTML=`
+    <div class="card"><h2 style="margin-top:0">Resumen</h2>
+    <div class="kv"><b>Ingresos</b><span>${money(revenue)}</span></div>
+    <div class="kv"><b>Gastos</b><span>${money(expense)}</span></div>
+    <div class="kv"><b>Resultado</b><span>${money(revenue-expense)}</span></div></div>
+    ${role()==='admin'?`<div class="card"><h2>Maestros</h2>
+    <p><b>Conductores:</b> ${d.drivers.join(', ')}</p>
+    <p><b>Camiones:</b> ${d.trucks.join(', ')}</p>
+    <p><b>Clientes:</b> ${d.clients.join(', ')}</p></div>`:''}
+    <div class="card"><h2>Datos</h2><button class="btn warn" onclick="resetDemo()">Restablecer datos demo</button></div>`;
+}
+function resetDemo(){localStorage.removeItem(STORE);seed();renderAll();toast('Datos restablecidos')}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+start();
+</script>
+</body>
+</html>
