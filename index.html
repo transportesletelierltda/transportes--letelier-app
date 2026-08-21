@@ -349,7 +349,11 @@ function renderMore(){
 }
 function resetDemo(){localStorage.removeItem(STORE);seed();renderAll();toast('Datos restablecidos')}
 document.getElementById('loginForm').addEventListener('submit',handleLogin);
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
 start();
 </script>
 </body>
