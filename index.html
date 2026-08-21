@@ -127,9 +127,9 @@ function seed(){
   };
   localStorage.setItem(STORE,JSON.stringify(data));
 }
-seed();
 
-function getData(){return JSON.parse(localStorage.getItem(STORE))}
+
+function getData(){return JSON.parse(localStorage.getItem(STORE)) || {trips:[],clients:[],drivers:[],trucks:[]}}
 function saveData(d){localStorage.setItem(STORE,JSON.stringify(d)); renderAll()}
 function money(n){return new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(n||0)}
 function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
@@ -432,10 +432,9 @@ function renderMore(){
     <p><b>Conductores:</b> ${d.drivers.join(', ')}</p>
     <p><b>Camiones:</b> ${d.trucks.join(', ')}</p>
     <p><b>Clientes:</b> ${d.clients.join(', ')}</p></div>`:''}
-    <div class="card"><h2>Datos</h2><button class="btn warn" onclick="resetDemo()">Restablecer datos demo</button></div>`;
+   
 }
-function resetDemo(){localStorage.removeItem(STORE);seed();renderAll();toast('Datos restablecidos')}
-document.getElementById('loginForm').addEventListener('submit',handleLogin);
+
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
