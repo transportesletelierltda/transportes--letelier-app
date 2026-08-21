@@ -296,23 +296,33 @@ function detail(id){
     <div class="filelist" style="margin-top:10px">${renderDocs(t)}</div>
   </div>`;
 }
-  function renderDocs(t){
+function renderDocs(t){
   if(!t.docs || !t.docs.length){
     return 'Sin documentos registrados';
   }
 
   return t.docs.map(function(doc){
+
+    // Documento antiguo guardado como texto
     if(typeof doc === 'string'){
-      return '<div>📄 ' + doc + ' <small>(documento antiguo)</small></div>';
+      return '<div>📄 ' + doc + ' <small>(antiguo)</small></div>';
     }
 
-    if(doc.data){
-      return '<div>📄 ' + doc.type + ' · ' + doc.name +
-        ' <a class="btn secondary" href="' + doc.data +
+    // Documento nuevo con imagen/PDF guardado
+    if(doc && doc.data){
+      return '<div style="margin-bottom:8px">📄 ' +
+        (doc.type || 'Documento') + ' · ' +
+        (doc.name || 'Archivo') +
+        ' <a class="btn secondary" href="' +
+        doc.data +
         '" target="_blank" rel="noopener">Ver documento</a></div>';
     }
 
-    return '<div>📄 ' + (doc.name || 'Documento') + '</div>';
+    // Protección para registros incompletos
+    return '<div>📄 ' +
+      (doc && doc.name ? doc.name : 'Documento sin archivo') +
+      '</div>';
+
   }).join('');
 }
 function updateStatus(id){
