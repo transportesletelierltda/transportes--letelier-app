@@ -301,8 +301,7 @@ function renderDocs(t){
     return 'Sin documentos registrados';
   }
 
-  return t.docs.map(function(doc){
-
+  return t.docs.map(function(doc,index){
     // Documento antiguo guardado como texto
     if(typeof doc === 'string'){
       return '<div>📄 ' + doc + ' <small>(antiguo)</small></div>';
@@ -316,7 +315,9 @@ function renderDocs(t){
     '<details style="margin-top:6px">' +
     '<summary style="cursor:pointer;font-weight:600">Ver documento</summary>' +
     '<img src="' + doc.data + '" style="display:block;max-width:100%;height:auto;margin-top:8px;border-radius:10px">' +
-    '</details></div>';
+    '</details>' +
+'<button class="btn warn" style="margin-top:8px" onclick="deleteDoc(\'' + t.id + '\',' + index + ')">Eliminar documento</button>' +
+'</div>';
 }
 
     // Protección para registros incompletos
@@ -326,6 +327,22 @@ function renderDocs(t){
 
   }).join('');
 }
+function deleteDoc(id,index){
+  const d = getData();
+  const t = d.trips.find(x => x.id === id);
+
+  if(!t || !t.docs || !t.docs[index]) return;
+
+  const ok = confirm('¿Eliminar este documento?');
+  if(!ok) return;
+
+  t.docs.splice(index,1);
+
+  saveData(d);
+  toast('Documento eliminado');
+  detail(id);
+}
+  
 function updateStatus(id){
   const d=getData();const t=d.trips.find(x=>x.id===id);t.status=document.getElementById('st-'+id).value;saveData(d);toast('Estado actualizado');detail(id)
 }
