@@ -62,7 +62,7 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
     <div class="logo">TL</div>
     <h1 style="margin:0 0 6px">Transportes Letelier</h1>
     <p class="muted">Control de viajes, gastos y documentación.</p>
-    <form id="loginForm">
+    <form id="loginForm" onsubmit="handleLogin(event); return false;">
       <label for="role">Perfil</label>
       <select id="role">
         <option value="admin">Administrador</option>
