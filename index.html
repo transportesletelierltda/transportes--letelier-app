@@ -293,7 +293,7 @@ function detail(id){
     <label>Tipo</label><select id="dt-${t.id}"><option>Guía de despacho</option><option>Factura</option><option>Comprobante de entrega</option><option>Ticket combustible</option><option>Peaje</option><option>Pesaje</option><option>Otro</option></select>
     <input id="df-${t.id}" type="file" accept="image/*,.pdf" capture="environment">
     <button class="btn secondary full" style="margin-top:10px" onclick="addDoc('${t.id}')">Guardar documento</button>
-    <div class="filelist" style="margin-top:10px">${t.docs.length ? t.docs.map((doc,i)=>'<div> ${doc} <button class="btn secondary" onclick="viewDoc('${t.id}',${i})"ver documento</div>').join('') : sin documento registrado'}</div>
+    <div class="filelist" style="margin-top:10px">${t.docs.length ? t.docs.map((doc,i) => '<div>📄 ' + (doc.name || doc) + ' <button class="btn secondary" onclick="viewDoc(\'' + t.id + '\',' + i + ')">Ver documento</button></div>').join('') : 'Sin documentos registrados'}</div>
   </div>`;
 }
 function updateStatus(id){
