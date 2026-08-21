@@ -310,13 +310,14 @@ function renderDocs(t){
 
     // Documento nuevo con imagen/PDF guardado
     if(doc && doc.data){
-      return '<div style="margin-bottom:8px">📄 ' +
-        (doc.type || 'Documento') + ' · ' +
-        (doc.name || 'Archivo') +
-        ' <a class="btn secondary" href="' +
-        doc.data +
-        '" target="_blank" rel="noopener">Ver documento</a></div>';
-    }
+  return '<div style="margin-bottom:10px">📄 ' +
+    (doc.type || 'Documento') + ' · ' +
+    (doc.name || 'Archivo') +
+    '<details style="margin-top:6px">' +
+    '<summary style="cursor:pointer;font-weight:600">Ver documento</summary>' +
+    '<img src="' + doc.data + '" style="display:block;max-width:100%;height:auto;margin-top:8px;border-radius:10px">' +
+    '</details></div>';
+}
 
     // Protección para registros incompletos
     return '<div>📄 ' +
