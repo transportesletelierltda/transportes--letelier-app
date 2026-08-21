@@ -293,8 +293,27 @@ function detail(id){
     <label>Tipo</label><select id="dt-${t.id}"><option>Guía de despacho</option><option>Factura</option><option>Comprobante de entrega</option><option>Ticket combustible</option><option>Peaje</option><option>Pesaje</option><option>Otro</option></select>
     <input id="df-${t.id}" type="file" accept="image/*,.pdf" capture="environment">
     <button class="btn secondary full" style="margin-top:10px" onclick="addDoc('${t.id}')">Guardar documento</button>
-    <div class="filelist" style="margin-top:10px">${t.docs.join('<br>')||'Sin documentos registrados'}</div>
+    <div class="filelist" style="margin-top:10px">${renderDocs(t)}</div>
   </div>`;
+}
+  function renderDocs(t){
+  if(!t.docs || !t.docs.length){
+    return 'Sin documentos registrados';
+  }
+
+  return t.docs.map(function(doc){
+    if(typeof doc === 'string'){
+      return '<div>📄 ' + doc + ' <small>(documento antiguo)</small></div>';
+    }
+
+    if(doc.data){
+      return '<div>📄 ' + doc.type + ' · ' + doc.name +
+        ' <a class="btn secondary" href="' + doc.data +
+        '" target="_blank" rel="noopener">Ver documento</a></div>';
+    }
+
+    return '<div>📄 ' + (doc.name || 'Documento') + '</div>';
+  }).join('');
 }
 function updateStatus(id){
   const d=getData();const t=d.trips.find(x=>x.id===id);t.status=document.getElementById('st-'+id).value;saveData(d);toast('Estado actualizado');detail(id)
