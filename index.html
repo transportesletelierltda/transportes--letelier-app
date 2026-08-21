@@ -264,7 +264,7 @@ function createTrip(){
   d.trips.unshift(trip);saveData(d);toast('Viaje creado');showView('trips');
 }
 function detail(id){
-  const d=getData(); const t=d.trips.find(x=>x.id===id); if(!t)return;
+  const d=getData(); const t=d.trips.find(x=>x.id===id); if(!t)return;showView(´trips´);
   const statuses=['Asignado','En camino a carga','Cargando','En ruta','En destino','Descargando','Entregado','Finalizado'];
   document.getElementById('view-trips').innerHTML=`
   <div class="card">
