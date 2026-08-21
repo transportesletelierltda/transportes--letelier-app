@@ -364,10 +364,32 @@ async function updateStatus(id){
 
   detail(id);
 }
-function addExpense(id){
-  const d=getData();const t=d.trips.find(x=>x.id===id);
-  const amount=Number(document.getElementById('ga-'+id).value||0); if(!amount){toast('Ingresa un monto');return}
-  t.expenses.push({type:document.getElementById('gx-'+id).value,amount});saveData(d);toast('Gasto agregado');detail(id)
+async function addExpense(id){
+  const d = getData();
+  const t = d.trips.find(x => x.id === id);
+
+  const amount = Number(document.getElementById('ga-'+id).value || 0);
+  if(!amount){
+    toast('Ingresa un monto');
+    return;
+  }
+
+  t.expenses.push({
+    type: document.getElementById('gx-'+id).value,
+    amount
+  });
+
+  saveData(d);
+
+  try{
+    await window.guardarViajeFirebase(t);
+    toast('Gasto agregado');
+  }catch(error){
+    console.error('Error al guardar gasto en Firebase:', error);
+    toast('Gasto guardado localmente');
+  }
+
+  detail(id);
 }
 function addDoc(id){
   const d = getData();
