@@ -293,7 +293,7 @@ function detail(id){
     <label>Tipo</label><select id="dt-${t.id}"><option>Guía de despacho</option><option>Factura</option><option>Comprobante de entrega</option><option>Ticket combustible</option><option>Peaje</option><option>Pesaje</option><option>Otro</option></select>
     <input id="df-${t.id}" type="file" accept="image/*,.pdf" capture="environment">
     <button class="btn secondary full" style="margin-top:10px" onclick="addDoc('${t.id}')">Guardar documento</button>
-    <div class="filelist" style="margin-top:10px">${t.docs.length ? t.docs.map(function(doc,i){ return "<div>📄 " + (doc.name || doc) + " <button class='btn secondary' data-trip='" + t.id + "' data-index='" + i + "' onclick='viewDoc(this.dataset.trip, Number(this.dataset.index))'>Ver documento</button></div>"; }).join("") : "Sin documentos registrados"}</div>
+    <div class="filelist" style="margin-top:10px">${t.docs.join('<br>')||'Sin documentos registrados'}</div>
   </div>`;
 }
 function updateStatus(id){
@@ -329,27 +329,7 @@ function addDoc(id){
     toast('Documento registrado');
     detail(id);
 };
-  function viewDoc(id,index){
-  const d = getData();
-  const t = d.trips.find(x => x.id === id);
-  if(!t || !t.docs || !t.docs[index]) return;
-
-  const doc = t.docs[index];
-
-  if(doc.data){
-    const w = window.open();
-    w.document.write(`
-      <html>
-        <head><title>${doc.name || 'Documento'}</title></head>
-        <body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh">
-          <img src="${doc.data}" style="max-width:100%;max-height:100vh;object-fit:contain">
-        </body>
-      </html>
-    `);
-  } else {
-    alert('Este documento antiguo no tiene la imagen guardada. Debes volver a subirlo.');
-  }
-}
+ 
 function renderMore(){
   const d=getData(); const trips=visibleTrips();
   const expense=trips.flatMap(t=>t.expenses).reduce((a,e)=>a+(e.amount||0),0);
