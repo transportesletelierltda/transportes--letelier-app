@@ -344,8 +344,25 @@ function deleteDoc(id,index){
   detail(id);
 }
   
-function updateStatus(id){
-  const d=getData();const t=d.trips.find(x=>x.id===id);t.status=document.getElementById('st-'+id).value;saveData(d);toast('Estado actualizado');detail(id)
+async function updateStatus(id){
+  const d = getData();
+  const t = d.trips.find(x => x.id === id);
+
+  if(!t) return;
+
+  t.status = document.getElementById('st-' + id).value;
+
+  saveData(d);
+
+  try{
+    await window.guardarViajeFirebase(t);
+    toast('Estado actualizado');
+  }catch(error){
+    console.error('Error al actualizar Firebase:', error);
+    toast('Estado actualizado localmente');
+  }
+
+  detail(id);
 }
 function addExpense(id){
   const d=getData();const t=d.trips.find(x=>x.id===id);
