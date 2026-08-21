@@ -249,7 +249,7 @@ function renderNew(){
       <button class="btn full" style="margin-top:14px" onclick="createTrip()">Crear viaje</button>
     </div>`;
 }
-function createTrip(){
+async function createTrip(){
   const d=getData();
   const next=String(Math.max(...d.trips.map(t=>parseInt(t.id.split('-')[1])),129)+1).padStart(6,'0');
   const trip={
@@ -261,6 +261,7 @@ function createTrip(){
     cargo:document.getElementById('n-cargo').value,value:Number(document.getElementById('n-value').value||0),
     status:'Asignado',notes:document.getElementById('n-notes').value,expenses:[],docs:[]
   };
+  await setDoc(doc(db, "viajes", trip.id), {...trip, fechaCreacion: serverTimestamp()});
   d.trips.unshift(trip);saveData(d);toast('Viaje creado');showView('trips');
 }
 function detail(id){
