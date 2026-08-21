@@ -261,7 +261,7 @@ async function createTrip(){
     cargo:document.getElementById('n-cargo').value,value:Number(document.getElementById('n-value').value||0),
     status:'Asignado',notes:document.getElementById('n-notes').value,expenses:[],docs:[]
   };
-  await setDoc(doc(db, "viajes", trip.id), {...trip, fechaCreacion: serverTimestamp()});
+  await window.guardarViajeFirebase(trip);
   d.trips.unshift(trip);saveData(d);toast('Viaje creado');showView('trips');
 }
 function detail(id){
