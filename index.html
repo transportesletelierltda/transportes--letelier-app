@@ -241,7 +241,7 @@ function renderNew(){
       <label>Conductor</label><select id="n-driver">${d.drivers.map(x=>`<option>${x}</option>`).join('')}</select>
       <label>Camión</label><select id="n-truck">${d.trucks.map(x=>`<option>${x}</option>`).join('')}</select>
       <label>Patente</label><input id="n-plate" placeholder="XXXX-00">
-      <label>Rampla</label><select id="n-trailer">${(d.trailers||[]).map(x=>⁠ <option>${x}</option> ⁠).join('')}</select>
+      <label>Rampla</label><select id="n-trailer">${(d.trailers||[]).map(x=>'<option>'+x+'</option>').join('')}</select>
       <label>Origen</label><input id="n-origin" placeholder="Santiago">
       <label>Destino</label><input id="n-dest" placeholder="Concepción">
       <label>Tipo de carga</label><input id="n-cargo" placeholder="Carga general">
