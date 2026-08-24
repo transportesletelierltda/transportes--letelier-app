@@ -420,7 +420,7 @@ function addDoc(id){
 
   reader.readAsDataURL(f);
 }
- function addMaster(type,label){
+ async function addMaster(type,label){
   if(role()!=='admin') return;
   const value=prompt('Nuevo '+label+':');
   if(!value || !value.trim()) return;
@@ -437,6 +437,12 @@ function addDoc(id){
 
   d[type].push(v);
   saveData(d);
+   try{
+  await window.guardarMaestroFirebase(type,v);
+}catch(error){
+  console.error('Error guardando maestro en Firebase:',error);
+  toast('Guardado localmente, pero hubo un error en Firebase');
+}
   toast(label+' agregado');
 }
 
