@@ -130,7 +130,7 @@ trailers:['Rampla 01','Rampla 02']
 }
 
 
-function getData(){return JSON.parse(localStorage.getItem(STORE)) || {trips:[],clients:[],drivers:[],trucks:[],trailers:[]}
+function getData(){return JSON.parse(localStorage.getItem(STORE)) || {trips:[],clients:[],drivers:[],trucks:[],trailers:[]}}
 function saveData(d){localStorage.setItem(STORE,JSON.stringify(d)); renderAll()}
 function money(n){return new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(n||0)}
 function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
