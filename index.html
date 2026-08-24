@@ -551,7 +551,7 @@ start();
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
+alert("Firebase inicializado");
 window.guardarViajeFirebase = async function(trip) {
   await setDoc(
     doc(db, "viajes", trip.id),
@@ -570,6 +570,7 @@ window.guardarViajeFirebase = async function(trip) {
     }
   );
 };
+    alert("Función guardar lista");
     window.probarFirestore = async function () {
   try {
     await setDoc(doc(db, "pruebas", "conexion"), {
