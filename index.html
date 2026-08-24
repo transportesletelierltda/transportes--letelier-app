@@ -438,6 +438,9 @@ function addDoc(id){
   d[type].push(v);
   saveData(d);
    try{
+     if (typeof window.guardarMaestroFirebase !== "function") {
+  alert("Firebase NO se cargó en este dispositivo");
+}
   await window.guardarMaestroFirebase(type,v);
 }catch(error){
   console.error('Error guardando maestro en Firebase:',error);
