@@ -551,6 +551,15 @@ window.guardarViajeFirebase = async function(trip) {
     }
   );
 };
+    window.guardarMaestroFirebase = async function(tipo, nombre) {
+  await setDoc(
+    doc(db, tipo, nombre),
+    {
+      nombre: nombre,
+      fechaCreacion: serverTimestamp()
+    }
+  );
+};
     window.probarFirestore = async function () {
   try {
     await setDoc(doc(db, "pruebas", "conexion"), {
