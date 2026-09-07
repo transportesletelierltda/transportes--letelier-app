@@ -534,7 +534,7 @@ start();
   // Import the functions you need from the SDKs you need
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
   import { getFirestore, doc, setDoc, serverTimestamp, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-  alert("Módulo Firebase cargó");
+  
     // TODO: Add SDKs for Firebase products that you want to use
   // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -551,7 +551,7 @@ start();
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-alert("Firebase inicializado");
+
 window.guardarViajeFirebase = async function(trip) {
   await setDoc(
     doc(db, "viajes", trip.id),
@@ -570,7 +570,7 @@ window.guardarViajeFirebase = async function(trip) {
     }
   );
 };
-    alert("Función guardar lista");
+   
     window.probarFirestore = async function () {
   try {
     await setDoc(doc(db, "pruebas", "conexion"), {
@@ -578,7 +578,7 @@ window.guardarViajeFirebase = async function(trip) {
       fecha: serverTimestamp()
     });
 
-    alert("✅ Firebase conectado correctamente");
+   
   } catch (error) {
     console.error(error);
     alert("❌ Error al conectar con Firebase: " + error.message);
