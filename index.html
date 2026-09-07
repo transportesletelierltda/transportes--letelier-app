@@ -381,8 +381,7 @@ async function deleteTrip(id){
     toast('Se eliminó localmente, pero hubo un error en Firebase');
   }
 }
-  detail(id);
-}
+
 async function addExpense(id){
   const d = getData();
   const t = d.trips.find(x => x.id === id);
