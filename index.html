@@ -284,6 +284,7 @@ function detail(id){
     <label>Estado del viaje</label>
     <select id="st-${t.id}">${statuses.map(s=>`<option ${s===t.status?'selected':''}>${s}</option>`).join('')}</select>
     <button class="btn full" style="margin-top:10px" onclick="updateStatus('${t.id}')">Actualizar estado</button>
+    <button class="btn warn" style="margin-top:10px" onclick="deleteTrip('${t.id}')">Eliminar viaje</button>
     <hr>
     <h3>Registrar gasto</h3>
     <label>Tipo</label><select id="gx-${t.id}"><option>Combustible</option><option>Peaje</option><option>Estacionamiento</option><option>Alimentación</option><option>Reparación</option><option>Otro</option></select>
@@ -362,7 +363,24 @@ async function updateStatus(id){
     console.error('Error al actualizar Firebase:', error);
     toast('Estado actualizado localmente');
   }
+  }
+  detail(id);
+async function deleteTrip(id){
+  if(!confirm('¿Eliminar este viaje definitivamente?')) return;
 
+  const d = getData();
+  d.trips = d.trips.filter(t => t.id !== id);
+  saveData(d);
+
+  try{
+    await window.eliminarViajeFirebase(id);
+    toast('Viaje eliminado');
+    showView('trips');
+  }catch(error){
+    console.error('Error eliminando viaje en Firebase:', error);
+    toast('Se eliminó localmente, pero hubo un error en Firebase');
+  }
+}
   detail(id);
 }
 async function addExpense(id){
@@ -589,6 +607,9 @@ window.guardarViajeFirebase = async function(trip) {
 };
    window.eliminarMaestroFirebase = async function(tipo, nombre) {
   await deleteDoc(doc(db, tipo, nombre));
+};
+    window.eliminarViajeFirebase = async function(id) {
+  await deleteDoc(doc(db, "viajes", id));
 };
     window.probarFirestore = async function () {
   try {
