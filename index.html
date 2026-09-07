@@ -449,16 +449,26 @@ function addDoc(id){
   toast(label+' agregado');
 }
 
-function deleteMaster(type,value,label){
+async function deleteMaster(type,value,label){
   if(role()!=='admin') return;
 
   if(!confirm('¿Eliminar '+label+' "'+value+'"?')) return;
 
   const d=getData();
   d[type]=(d[type]||[]).filter(x=>x!==value);
-
   saveData(d);
-  toast(label+' eliminado');
+
+  try{
+    if(typeof window.eliminarMaestroFirebase === "function"){
+      await window.eliminarMaestroFirebase(type,value);
+    }
+  }catch(error){
+    console.error("Error eliminando en Firebase:",error);
+    toast("Se eliminó localmente, pero hubo un error en Firebase");
+    return;
+  }
+
+  toast(label+" eliminado");
 }
 function masterRows(items,type,label){
   if(!items || !items.length) return '<p>Sin registros</p>';
@@ -533,7 +543,7 @@ start();
   <script type="module">
   // Import the functions you need from the SDKs you need
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, serverTimestamp, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+ import { getFirestore, doc, setDoc, deleteDoc, serverTimestamp, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
   
     // TODO: Add SDKs for Firebase products that you want to use
   // https://firebase.google.com/docs/web/setup#available-libraries
@@ -570,7 +580,9 @@ window.guardarViajeFirebase = async function(trip) {
     }
   );
 };
-   
+   window.eliminarMaestroFirebase = async function(tipo, nombre) {
+  await deleteDoc(doc(db, tipo, nombre));
+};
     window.probarFirestore = async function () {
   try {
     await setDoc(doc(db, "pruebas", "conexion"), {
