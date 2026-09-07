@@ -406,7 +406,7 @@ function addDoc(id){
   }
   
   const reader = new FileReader(); 
-  reader.onload = function(e){
+  reader.onload = async function(e){
     t.docs.push({
       type: type,
       name: f.name,
@@ -414,7 +414,14 @@ function addDoc(id){
     });
     
     saveData(d);
-    toast('Documento registrado');
+    try{
+  await window.guardarViajeFirebase(t);
+  toast('Documento registrado');
+}catch(error){
+  console.error('Error guardando documento en Firebase:', error);
+  toast('Documento guardado localmente, pero hubo un error en Firebase');
+}
+    
     detail(id);
 };
 
