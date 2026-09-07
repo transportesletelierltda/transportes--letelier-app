@@ -622,8 +622,27 @@ window.cargarMaestrosFirebase = async function () {
     console.error("Error cargando maestros desde Firebase:", error);
   }
 };
+window.cargarViajesFirebase = async function () {
+  try {
+    const snapshot = await getDocs(collection(db, "viajes"));
+    const d = getData();
 
-window.cargarMaestrosFirebase();
+    d.trips = snapshot.docs.map(doc => doc.data());
+
+    saveData(d);
+    render();
+    console.log("Viajes cargados desde Firebase");
+  } catch (error) {
+    console.error("Error cargando viajes desde Firebase:", error);
+  }
+};
+
+async function iniciarDatosFirebase() {
+  await window.cargarMaestrosFirebase();
+  await window.cargarViajesFirebase();
+}
+
+iniciarDatosFirebase();
 </script>
 </body>
 </html>
